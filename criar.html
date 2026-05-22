@@ -748,6 +748,10 @@
       }, 3000);
     }
 
+    function voltarHome() {
+      window.location.href = 'index.html';
+    }
+
     function criar() {
       let nome = document.getElementById('nome').value.trim();
       let senha = document.getElementById('senha').value.trim();
@@ -787,4 +791,43 @@
       }
 
       // Verifica nome repetido
-    
+      const nomeExistente = localStorage.getItem('personagem_nome');
+      if (nomeExistente === nome) {
+        mostrarMensagem('Esse nome já existe! Escolha outro.', 'erro');
+        return;
+      }
+
+      // Salva personagem
+      document.getElementById('load').style.display = 'block';
+
+      setTimeout(() => {
+        localStorage.setItem('personagem_nome', nome);
+        localStorage.setItem('personagem_senha', senha);
+        localStorage.setItem('personagem_classe', profissaoSelecionada);
+        localStorage.setItem('personagem_desc', desc);
+        localStorage.setItem('personagem_foto', foto);
+        localStorage.setItem('personagem_itens', JSON.stringify(itensSelecionados));
+        localStorage.setItem('personagem_nivel', '1');
+        localStorage.setItem('personagem_exp', '0');
+
+        // Stats baseado na profissão
+        const statsBase = {
+          'Guerreiro': { vida: 120, ataque: 20, defesa: 15 },
+          'Mago': { vida: 80, ataque: 25, defesa: 8 },
+          'Arqueiro': { vida: 100, ataque: 22, defesa: 10 },
+          'Clérigo': { vida: 110, ataque: 15, defesa: 12 }
+        };
+
+        localStorage.setItem('personagem_stats', JSON.stringify(statsBase[profissaoSelecionada]));
+
+        document.getElementById('load').style.display = 'none';
+        mostrarMensagem('✨ Personagem criado com sucesso!', 'sucesso');
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
