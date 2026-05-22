@@ -15,7 +15,7 @@
     .subtitle { color: #aaa; font-size: 16px; letter-spacing: 1px; margin-bottom: 30px; }
     .rankings-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; animation: fadeInUp 0.6s ease-out 0.2s both; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .ranking-card { background: rgba(20, 25, 50, 0.8); border: 2px solid #f5c542; border-radius: 20px; padding: 25px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); transition: all 0.3s ease; animation: fadeIn 0.4s ease-out; }
+    .ranking-card { background: rgba(20, 25, 50, 0.8); border: 2px solid #f5c542; border-radius: 20px; padding: 25px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); transition: all 0.3s ease; animation: fadeIn 0.6s ease-out; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .ranking-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(245, 197, 66, 0.3); border-color: #00cc66; }
     .rank-position { font-size: 48px; font-weight: bold; color: #f5c542; text-align: center; margin-bottom: 15px; text-shadow: 0 0 20px rgba(245, 197, 66, 0.4); }
@@ -34,8 +34,12 @@
     .hp-fill-rank { background: linear-gradient(90deg, #ff3333 0%, #ff6666 100%); }
     .nivel-badge { display: inline-block; background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%); color: black; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 8px; }
     .botao-voltar-container { display: flex; justify-content: center; margin-top: 40px; animation: fadeInUp 0.6s ease-out 0.4s both; }
-    .btn-voltar { padding: 15px 40px; background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%); color: black; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(245, 197, 66, 0.3); }
+    .btn-voltar { padding: 15px 40px; background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%); color: black; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(245, 197, 66, 0.3); }
     .btn-voltar:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(245, 197, 66, 0.5); }
+    .empty-message { text-align: center; padding: 40px 20px; color: #aaa; font-size: 18px; grid-column: 1 / -1; }
+    .empty-message p { margin-bottom: 20px; }
+    .btn-criar { padding: 12px 30px; background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%); color: black; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+    .btn-criar:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 197, 66, 0.4); }
     @media (max-width: 768px) { h1 { font-size: 32px; } .rankings-container { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -52,22 +56,62 @@
   </div>
 
   <script>
-    const personagensSimulados = [
-      { nome: 'Herói Lendário', nivel: 50, xp: 5000, hp: 500, energia: 250, foto: '🧙' },
-      { nome: 'Guerreiro Épico', nivel: 45, xp: 4500, hp: 450, energia: 200, foto: '⚔️' },
-      { nome: 'Arqueiro Mágico', nivel: 42, xp: 4200, hp: 400, energia: 180, foto: '🏹' },
-      { nome: 'Clérigo Sábio', nivel: 38, xp: 3800, hp: 350, energia: 150, foto: '✨' },
-      { nome: 'Mago Poderoso', nivel: 35, xp: 3500, hp: 300, energia: 120, foto: '🔮' },
-      { nome: 'Paladino Corajoso', nivel: 32, xp: 3200, hp: 280, energia: 100, foto: '🛡️' },
-      { nome: 'Cavaleiro Valente', nivel: 28, xp: 2800, hp: 250, energia: 80, foto: '🗡️' },
-      { nome: 'Aprendiz Místico', nivel: 24, xp: 2400, hp: 200, energia: 60, foto: '📚' },
-      { nome: 'Aventureiro Corajoso', nivel: 20, xp: 2000, hp: 180, energia: 50, foto: '🎒' },
-      { nome: 'Iniciante Determinado', nivel: 15, xp: 1500, hp: 150, energia: 30, foto: '👤' }
-    ];
-
     function carregarRankings() {
       const container = document.getElementById('rankingsContainer');
-      const personagensOrdenados = [...personagensSimulados].sort((a, b) => b.nivel - a.nivel);
+      
+      // Buscar todos os personagens criados do localStorage
+      let personagens = [];
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const chave = localStorage.key(i);
+        // Procurar por personagens armazenados (assumindo que sejam armazenados com um prefixo ou chave específica)
+        if (chave.startsWith('personagem_')) {
+          try {
+            const dados = JSON.parse(localStorage.getItem(chave));
+            if (dados && dados.nome) {
+              personagens.push(dados);
+            }
+          } catch (e) {
+            console.log('Erro ao parsear personagem:', chave);
+          }
+        }
+      }
+
+      // Se não houver personagens armazenados como objetos, tentar carregar de forma alternativa
+      if (personagens.length === 0) {
+        const nomePersonagem = localStorage.getItem('personagem_nome');
+        const nivelPersonagem = localStorage.getItem('personagem_nivel');
+        const xpPersonagem = localStorage.getItem('personagem_xp');
+        const hpPersonagem = localStorage.getItem('personagem_hp');
+        const energiaPersonagem = localStorage.getItem('personagem_energia');
+        const fotoPersonagem = localStorage.getItem('personagem_foto') || '👤';
+
+        if (nomePersonagem) {
+          personagens.push({
+            nome: nomePersonagem,
+            nivel: parseInt(nivelPersonagem) || 1,
+            xp: parseInt(xpPersonagem) || 0,
+            hp: parseInt(hpPersonagem) || 100,
+            energia: parseInt(energiaPersonagem) || 50,
+            foto: fotoPersonagem
+          });
+        }
+      }
+
+      // Se não há personagens, mostrar mensagem
+      if (personagens.length === 0) {
+        container.innerHTML = `
+          <div class="empty-message">
+            <p>😢 Nenhum personagem criado ainda!</p>
+            <p>Crie seu personagem para aparecer no ranking.</p>
+            <button class="btn-criar" onclick="irParaCriar()">🧙 Criar Personagem</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Ordenar personagens por nível (decrescente)
+      const personagensOrdenados = personagens.sort((a, b) => b.nivel - a.nivel);
 
       personagensOrdenados.forEach((personagem, indice) => {
         const posicao = indice + 1;
@@ -123,6 +167,7 @@
     }
 
     function voltarHome() { window.location.href = 'index.html'; }
+    function irParaCriar() { window.location.href = 'criar.html'; }
     window.onload = function() { carregarRankings(); };
   </script>
 </body>
