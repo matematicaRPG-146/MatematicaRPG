@@ -731,6 +731,10 @@
       }, 3000);
     }
 
+    function voltarHome() {
+      window.location.href = 'index.html';
+    }
+
     function carregarPersonagem() {
       // Recupera dados
       const nome = localStorage.getItem('personagem_nome') || 'Desconhecido';
@@ -782,4 +786,69 @@
       document.getElementById('xpPercent').textContent = xpPercent + '%';
 
       // Carrega Inventário
-      const inventarioGrid = document.get
+      const inventarioGrid = document.getElementById('inventarioGrid');
+      inventarioGrid.innerHTML = '';
+
+      if (itens.length === 0) {
+        inventarioGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #aaa;">Nenhum item no inventário</p>';
+      } else {
+        itens.forEach(item => {
+          const itemCard = document.createElement('div');
+          itemCard.className = 'item-card';
+          
+          // Mapear nome do item para emoji
+          const emojiMap = {
+            'Espada': '🗡️',
+            'Escudo': '🛡️',
+            'Poção': '🧪',
+            'Arco': '🏹',
+            'Magia': '🔥',
+            'Cristal': '💎'
+          };
+
+          itemCard.innerHTML = `
+            <div class="emoji">${emojiMap[item] || '📦'}</div>
+            <div class="nome">${item}</div>
+          `;
+          inventarioGrid.appendChild(itemCard);
+        });
+      }
+
+      // Atualiza Estatísticas
+      document.getElementById('inimigosDerotados').textContent = inimigosDerotados;
+      document.getElementById('nivel').textContent = nivel;
+      document.getElementById('tempoJogo').textContent = '0h';
+
+      // Carrega Conquistas
+      const conquistasGrid = document.getElementById('conquistasGrid');
+      conquistasGrid.innerHTML = '';
+
+      conquistasDisponiveis.forEach(conquista => {
+        const card = document.createElement('div');
+        card.className = 'conquista-card';
+        
+        // Lógica para desbloquear conquistas
+        let desbloqueada = false;
+        if (conquista.id === 1) desbloqueada = true; // Sempre desbloqueada
+        
+        if (desbloqueada) {
+          card.classList.add('desbloqueada');
+        }
+
+        card.innerHTML = `
+          <div class="emoji">${conquista.emoji}</div>
+          <div class="nome">${conquista.nome}</div>
+        `;
+        conquistasGrid.appendChild(card);
+      });
+    }
+
+    window.onload = function() {
+      const nomeArmazenado = localStorage.getItem('personagem_nome');
+      if (!nomeArmazenado) {
+        window.location.href = 'index.html';
+      }
+    };
+  </script>
+</body>
+</html>
