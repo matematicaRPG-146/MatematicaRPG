@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seu Personagem - Matemática RPG</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0a0f2c 0%, #1a1f4c 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Modal de Login */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, rgba(20, 25, 50, 0.95), rgba(30, 35, 60, 0.95));
+      border: 2px solid #f5c542;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .modal-header h2 {
+      font-size: 28px;
+      color: #f5c542;
+      text-shadow: 0 0 20px rgba(245, 197, 66, 0.5);
+      margin-bottom: 10px;
+    }
+
+    .modal-header p {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      color: #f5c542;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input {
+      padding: 12px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background-color: #141932;
+      color: white;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #f5c542;
+      box-shadow: 0 0 15px rgba(245, 197, 66, 0.3);
+    }
+
+    .modal-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .btn-login {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%);
+      color: black;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(245, 197, 66, 0.4);
+    }
+
+    .btn-cancel {
+      padding: 12px;
+      border: 2px solid #f5c542;
+      border-radius: 10px;
+      background-color: transparent;
+      color: #f5c542;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-cancel:hover {
+      background-color: #f5c542;
+      color: black;
+    }
+
+    .erro-modal {
+      background: rgba(255, 77, 77, 0.2);
+      border: 1px solid #ff4d4d;
+      color: #ff9999;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 13px;
+      font-weight: 600;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .erro-modal.show {
+      display: block;
+    }
+
+    /* Página do Personagem */
+    .header-personagem {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header-personagem h1 {
+      font-size: 42px;
+      color: #f5c542;
+      text-shadow: 0 0 20px rgba(245, 197, 66, 0.5);
+      letter-spacing: 2px;
+    }
+
+    .card-principal {
+      background: rgba(20, 25, 50, 0.8);
+      border: 2px solid #f5c542;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info-header {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 30px;
+      align-items: start;
+      margin-bottom: 30px;
+    }
+
+    .foto-personagem {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 4px solid #f5c542;
+      object-fit: cover;
+      box-shadow: 0 0 30px rgba(245, 197, 66, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 30px rgba(245, 197, 66, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 50px rgba(245, 197, 66, 0.7);
+      }
+    }
+
+    .info-texto {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .nome-personagem {
+      font-size: 32px;
+      font-weight: bold;
+      color: #f5c542;
+    }
+
+    .classe-personagem {
+      font-size: 16px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .descricao-personagem {
+      font-size: 15px;
+      color: #e0e0e0;
+      line-height: 1.6;
+      padding: 15px;
+      background: rgba(245, 197, 66, 0.05);
+      border-left: 3px solid #f5c542;
+      border-radius: 5px;
+    }
+
+    .stats-container {
+      margin-bottom: 30px;
+    }
+
+    .stats-container h3 {
+      font-size: 18px;
+      color: #f5c542;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f5c542;
+    }
+
+    .stat-item {
+      margin-bottom: 20px;
+    }
+
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-label span:first-child {
+      color: #f5c542;
+    }
+
+    .stat-label span:last-child {
+      color: #aaa;
+    }
+
+    .stat-bar {
+      width: 100%;
+      height: 24px;
+      background-color: #141932;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+
+    .stat-fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: white;
+      transition: width 0.5s ease;
+    }
+
+    .hp-fill {
+      background: linear-gradient(90deg, #ff3333 0%, #ff6666 100%);
+      box-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+    }
+
+    .xp-fill {
+      background: linear-gradient(90deg, #4da6ff 0%, #80c1ff 100%);
+      box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+    }
+
+    .energia-fill {
+      background: linear-gradient(90deg, #00cc66 0%, #00ff88 100%);
+      box-shadow: 0 0 10px rgba(0, 204, 102, 0.5);
+    }
+
+    .inventario-section {
+      background: rgba(20, 25, 50, 0.8);
+      border: 2px solid #f5c542;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      animation: fadeInUp 0.6s ease-out 0.3s both;
+    }
+
+    .inventario-section h3 {
+      font-size: 18px;
+      color: #f5c542;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f5c542;
+    }
+
+    .itens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .item-card {
+      background: linear-gradient(135deg, rgba(245, 197, 66, 0.1), rgba(245, 197, 66, 0.05));
+      border: 2px solid #f5c542;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    .item-card .emoji {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .item-card .nome {
+      font-size: 13px;
+      color: #f5c542;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .info-estatisticas {
+      background: rgba(245, 197, 66, 0.05);
+      border: 1px solid #f5c542;
+      border-radius: 12px;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .info-stat {
+      text-align: center;
+    }
+
+    .info-stat-label {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .info-stat-value {
+      font-size: 24px;
+      color: #f5c542;
+      font-weight: bold;
+    }
+
+    .conquistacoes-section {
+      background: rgba(20, 25, 50, 0.8);
+      border: 2px solid #f5c542;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      animation: fadeInUp 0.6s ease-out 0.4s both;
+    }
+
+    .conquistacoes-section h3 {
+      font-size: 18px;
+      color: #f5c542;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f5c542;
+    }
+
+    .conquista-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 15px;
+    }
+
+    .conquista-card {
+      background: rgba(245, 197, 66, 0.1);
+      border: 2px solid #f5c542;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+
+    .conquista-card.desbloqueada {
+      background: linear-gradient(135deg, rgba(0, 204, 102, 0.2), rgba(0, 204, 102, 0.1));
+      border-color: #00cc66;
+      opacity: 1;
+    }
+
+    .conquista-card .emoji {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .conquista-card .nome {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+
+    .conquista-card.desbloqueada .nome {
+      color: #00cc66;
+      font-weight: 600;
+    }
+
+    .botoes-rodape {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 40px;
+      animation: fadeInUp 0.6s ease-out 0.5s both;
+    }
+
+    .btn-voltar {
+      padding: 15px 40px;
+      background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%);
+      color: black;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(245, 197, 66, 0.3);
+    }
+
+    .btn-voltar:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(245, 197, 66, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .info-header {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .foto-personagem {
+        margin: 0 auto;
+      }
+
+      .header-personagem h1 {
+        font-size: 28px;
+      }
+
+      .nome-personagem {
+        font-size: 24px;
+      }
+
+      .modal-content {
+        padding: 25px;
+      }
+
+      .card-principal {
+        padding: 20px;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Modal de Login -->
+  <div class="modal-overlay" id="modalLogin">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🔐 Acessar Personagem</h2>
+        <p>Insira seu nome e senha</p>
+      </div>
+
+      <div id="erroModal" class="erro-modal"></div>
+
+      <form onsubmit="fazerLogin(event)">
+        <div class="form-group">
+          <label for="nomeLogin">Nome do Personagem</label>
+          <input type="text" id="nomeLogin" placeholder="Digite seu nome..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="senhaLogin">Senha</label>
+          <input type="password" id="senhaLogin" placeholder="Digite sua senha..." required>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" class="btn-login">✓ Entrar</button>
+          <button type="button" class="btn-cancel" onclick="voltarHome()">← Sair</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Página do Personagem -->
+  <div class="container hidden" id="paginaPersonagem">
+    <div class="header-personagem">
+      <h1>⚔️ Seu Personagem ⚔️</h1>
+    </div>
+
+    <!-- Card Principal com Info -->
+    <div class="card-principal">
+      <div class="info-header">
+        <img id="fotoDisplay" class="foto-personagem" src="" alt="Foto do personagem">
+
+        <div class="info-texto">
+          <div class="nome-personagem" id="nomeDisplay">---</div>
+          <div class="classe-personagem" id="classeDisplay">---</div>
+          <div class="descricao-personagem" id="descricaoDisplay">Sem descrição</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-container">
+        <h3>📊 Barras de Status</h3>
+
+        <div class="stat-item">
+          <div class="stat-label">
+            <span>❤️ Vida</span>
+            <span id="hpValor">100/100</span>
+          </div>
+          <div class="stat-bar">
+            <div class="stat-fill hp-fill" id="hpBar" style="width: 100%;">
+              <span id="hpPercent">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-label">
+            <span>⚡ Energia</span>
+            <span id="energiaValor">50/100</span>
+          </div>
+          <div class="stat-bar">
+            <div class="stat-fill energia-fill" id="energiaBar" style="width: 50%;">
+              <span id="energiaPercent">50%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-label">
+            <span>⭐ Experiência (XP)</span>
+            <span id="xpValor">0/100</span>
+          </div>
+          <div class="stat-bar">
+            <div class="stat-fill xp-fill" id="xpBar" style="width: 0%;">
+              <span id="xpPercent">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventário -->
+    <div class="inventario-section">
+      <h3>🎒 Inventário</h3>
+      <div class="itens-grid" id="inventarioGrid">
+        <!-- Itens serão adicionados aqui -->
+      </div>
+
+      <div class="info-estatisticas">
+        <div class="info-stat">
+          <div class="info-stat-label">Inimigos Derrotados</div>
+          <div class="info-stat-value" id="inimigosDerotados">0</div>
+        </div>
+        <div class="info-stat">
+          <div class="info-stat-label">Nível</div>
+          <div class="info-stat-value" id="nivel">1</div>
+        </div>
+        <div class="info-stat">
+          <div class="info-stat-label">Tempo de Jogo</div>
+          <div class="info-stat-value" id="tempoJogo">0h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conquistas -->
+    <div class="conquistacoes-section">
+      <h3>🏆 Conquistas</h3>
+      <div class="conquista-grid" id="conquistasGrid">
+        <!-- Conquistas serão adicionadas aqui -->
+      </div>
+    </div>
+
+    <!-- Botão Voltar -->
+    <div class="botoes-rodape">
+      <button class="btn-voltar" onclick="voltarHome()">🏠 Voltar ao Início</button>
+    </div>
+  </div>
+
+  <script>
+    // Conquistações disponíveis
+    const conquistasDisponiveis = [
+      { id: 1, nome: 'Primeiro Passo', emoji: '👶', descricao: 'Criar um personagem' },
+      { id: 2, nome: 'Caçador', emoji: '🎯', descricao: 'Derrotar 10 inimigos' },
+      { id: 3, nome: 'Guerreiro', emoji: '⚔️', descricao: 'Derrotar 50 inimigos' },
+      { id: 4, nome: 'Lenda', emoji: '🌟', descricao: 'Atingir nível 10' },
+      { id: 5, nome: 'Matemático', emoji: '🧮', descricao: 'Resolver 100 equações' },
+      { id: 6, nome: 'Deus da Matemática', emoji: '👑', descricao: 'Resolver 500 equações' }
+    ];
+
+    function fazerLogin(event) {
+      event.preventDefault();
+
+      const nome = document.getElementById('nomeLogin').value.trim();
+      const senha = document.getElementById('senhaLogin').value.trim();
+
+      // Recupera dados do localStorage
+      const nomeArmazenado = localStorage.getItem('personagem_nome');
+      const senhaArmazenada = localStorage.getItem('personagem_senha');
+
+      if (nome === '' || senha === '') {
+        mostrarErroModal('Preencha todos os campos!');
+        return;
+      }
+
+      if (nome !== nomeArmazenado || senha !== senhaArmazenada) {
+        mostrarErroModal('❌ Nome ou senha incorretos!');
+        return;
+      }
+
+      // Login bem-sucedido
+      document.getElementById('modalLogin').classList.add('hidden');
+      document.getElementById('paginaPersonagem').classList.remove('hidden');
+      carregarPersonagem();
+    }
+
+    function mostrarErroModal(mensagem) {
+      const erroEl = document.getElementById('erroModal');
+      erroEl.textContent = mensagem;
+      erroEl.classList.add('show');
+
+      setTimeout(() => {
+        erroEl.classList.remove('show');
+      }, 3000);
+    }
+
+    function carregarPersonagem() {
+      // Recupera dados
+      const nome = localStorage.getItem('personagem_nome') || 'Desconhecido';
+      const classe = localStorage.getItem('personagem_classe') || 'Sem classe';
+      const descricao = localStorage.getItem('personagem_desc') || 'Sem descrição';
+      const foto = localStorage.getItem('personagem_foto') || '';
+      const itens = JSON.parse(localStorage.getItem('personagem_itens') || '[]');
+      const nivel = localStorage.getItem('personagem_nivel') || '1';
+      const exp = localStorage.getItem('personagem_exp') || '0';
+      const statsJson = localStorage.getItem('personagem_stats') || '{}';
+      const stats = JSON.parse(statsJson);
+
+      // Dados não persistentes (simulados)
+      const hpAtual = stats.vida || 100;
+      const hpMax = stats.vida || 100;
+      const energiaAtual = 50;
+      const energiaMax = 100;
+      const xpAtual = parseInt(exp) || 0;
+      const xpMax = 100;
+      const inimigosDerotados = localStorage.getItem('inimigos_derotados') || '0';
+
+      // Atualiza display
+      document.getElementById('nomeDisplay').textContent = nome;
+      document.getElementById('classeDisplay').textContent = `🎭 ${classe}`;
+      document.getElementById('descricaoDisplay').textContent = descricao || 'Sem descrição';
+
+      if (foto) {
+        document.getElementById('fotoDisplay').src = foto;
+      } else {
+        document.getElementById('fotoDisplay').style.display = 'none';
+      }
+
+      // Atualiza HP
+      const hpPercent = Math.round((hpAtual / hpMax) * 100);
+      document.getElementById('hpValor').textContent = `${hpAtual}/${hpMax}`;
+      document.getElementById('hpBar').style.width = hpPercent + '%';
+      document.getElementById('hpPercent').textContent = hpPercent + '%';
+
+      // Atualiza Energia
+      const energiaPercent = Math.round((energiaAtual / energiaMax) * 100);
+      document.getElementById('energiaValor').textContent = `${energiaAtual}/${energiaMax}`;
+      document.getElementById('energiaBar').style.width = energiaPercent + '%';
+      document.getElementById('energiaPercent').textContent = energiaPercent + '%';
+
+      // Atualiza XP
+      const xpPercent = Math.round((xpAtual / xpMax) * 100);
+      document.getElementById('xpValor').textContent = `${xpAtual}/${xpMax}`;
+      document.getElementById('xpBar').style.width = xpPercent + '%';
+      document.getElementById('xpPercent').textContent = xpPercent + '%';
+
+      // Carrega Inventário
+      const inventarioGrid = document.get

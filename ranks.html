@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classificações - Matemática RPG</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #0a0f2c 0%, #1a1f4c 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 50px; animation: slideDown 0.6s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+    h1 { font-size: 48px; color: #f5c542; text-shadow: 0 0 20px rgba(245, 197, 66, 0.8); margin-bottom: 15px; letter-spacing: 2px; animation: glow 2s ease-in-out infinite; font-weight: 800; }
+    @keyframes glow { 0%, 100% { text-shadow: 0 0 20px rgba(245, 197, 66, 0.8); } 50% { text-shadow: 0 0 30px rgba(245, 197, 66, 1); } }
+    .subtitle { color: #aaa; font-size: 16px; letter-spacing: 1px; margin-bottom: 30px; }
+    .rankings-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; animation: fadeInUp 0.6s ease-out 0.2s both; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .ranking-card { background: rgba(20, 25, 50, 0.8); border: 2px solid #f5c542; border-radius: 20px; padding: 25px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); transition: all 0.3s ease; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .ranking-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(245, 197, 66, 0.3); border-color: #00cc66; }
+    .rank-position { font-size: 48px; font-weight: bold; color: #f5c542; text-align: center; margin-bottom: 15px; text-shadow: 0 0 20px rgba(245, 197, 66, 0.4); }
+    .rank-position.top3 { background: linear-gradient(135deg, rgba(245, 197, 66, 0.2), rgba(245, 197, 66, 0.1)); padding: 15px; border-radius: 12px; margin: -10px; margin-bottom: 15px; }
+    .rank-separator { height: 2px; background: linear-gradient(90deg, transparent, #f5c542, transparent); margin-bottom: 15px; }
+    .personagem-info { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
+    .medal { text-align: center; font-size: 50px; margin-bottom: 10px; }
+    .nome-rank { font-size: 18px; font-weight: bold; color: #f5c542; text-align: center; margin-bottom: 10px; }
+    .stats-rank { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .stat-rank-item { display: flex; flex-direction: column; gap: 5px; }
+    .stat-rank-label { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .stat-rank-bar { width: 100%; height: 18px; background-color: #141932; border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+    .stat-rank-fill { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; transition: width 0.5s ease; }
+    .xp-fill-rank { background: linear-gradient(90deg, #4da6ff 0%, #80c1ff 100%); }
+    .energia-fill-rank { background: linear-gradient(90deg, #00cc66 0%, #00ff88 100%); }
+    .hp-fill-rank { background: linear-gradient(90deg, #ff3333 0%, #ff6666 100%); }
+    .nivel-badge { display: inline-block; background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%); color: black; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 8px; }
+    .botao-voltar-container { display: flex; justify-content: center; margin-top: 40px; animation: fadeInUp 0.6s ease-out 0.4s both; }
+    .btn-voltar { padding: 15px 40px; background: linear-gradient(135deg, #f5c542 0%, #d4a017 100%); color: black; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(245, 197, 66, 0.3); }
+    .btn-voltar:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(245, 197, 66, 0.5); }
+    @media (max-width: 768px) { h1 { font-size: 32px; } .rankings-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏆 CLASSIFICAÇÕES 🏆</h1>
+      <p class="subtitle">Classificação por Níveis - Veja os Melhores Jogadores!</p>
+    </div>
+    <div class="rankings-container" id="rankingsContainer"></div>
+    <div class="botao-voltar-container">
+      <button class="btn-voltar" onclick="voltarHome()">← Voltar ao Início</button>
+    </div>
+  </div>
+
+  <script>
+    const personagensSimulados = [
+      { nome: 'Herói Lendário', nivel: 50, xp: 5000, hp: 500, energia: 250, foto: '🧙' },
+      { nome: 'Guerreiro Épico', nivel: 45, xp: 4500, hp: 450, energia: 200, foto: '⚔️' },
+      { nome: 'Arqueiro Mágico', nivel: 42, xp: 4200, hp: 400, energia: 180, foto: '🏹' },
+      { nome: 'Clérigo Sábio', nivel: 38, xp: 3800, hp: 350, energia: 150, foto: '✨' },
+      { nome: 'Mago Poderoso', nivel: 35, xp: 3500, hp: 300, energia: 120, foto: '🔮' },
+      { nome: 'Paladino Corajoso', nivel: 32, xp: 3200, hp: 280, energia: 100, foto: '🛡️' },
+      { nome: 'Cavaleiro Valente', nivel: 28, xp: 2800, hp: 250, energia: 80, foto: '🗡️' },
+      { nome: 'Aprendiz Místico', nivel: 24, xp: 2400, hp: 200, energia: 60, foto: '📚' },
+      { nome: 'Aventureiro Corajoso', nivel: 20, xp: 2000, hp: 180, energia: 50, foto: '🎒' },
+      { nome: 'Iniciante Determinado', nivel: 15, xp: 1500, hp: 150, energia: 30, foto: '👤' }
+    ];
+
+    function carregarRankings() {
+      const container = document.getElementById('rankingsContainer');
+      const personagensOrdenados = [...personagensSimulados].sort((a, b) => b.nivel - a.nivel);
+
+      personagensOrdenados.forEach((personagem, indice) => {
+        const posicao = indice + 1;
+        let medalha = '', classMedal = '';
+        if (posicao === 1) { medalha = '🥇'; classMedal = 'top3'; }
+        else if (posicao === 2) { medalha = '🥈'; classMedal = 'top3'; }
+        else if (posicao === 3) { medalha = '🥉'; classMedal = 'top3'; }
+        else { medalha = `#${posicao}`; }
+
+        const xpPercent = Math.min(100, (personagem.xp / 5000) * 100);
+        const energiaPercent = Math.min(100, (personagem.energia / 300) * 100);
+        const hpPercent = Math.min(100, (personagem.hp / 500) * 100);
+
+        const card = document.createElement('div');
+        card.className = 'ranking-card';
+        card.innerHTML = `
+          <div class="rank-position ${classMedal}">${medalha}</div>
+          <div class="rank-separator"></div>
+          <div class="personagem-info">
+            <div class="medal">${personagem.foto}</div>
+            <div class="nome-rank">${personagem.nome}</div>
+            <div class="nivel-badge">Nível ${personagem.nivel}</div>
+          </div>
+          <div class="stats-rank">
+            <div class="stat-rank-item">
+              <span class="stat-rank-label">⭐ XP</span>
+              <div class="stat-rank-bar">
+                <div class="stat-rank-fill xp-fill-rank" style="width: ${xpPercent}%;">
+                  <span>${Math.round(xpPercent)}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="stat-rank-item">
+              <span class="stat-rank-label">⚡ Energia</span>
+              <div class="stat-rank-bar">
+                <div class="stat-rank-fill energia-fill-rank" style="width: ${energiaPercent}%;">
+                  <span>${Math.round(energiaPercent)}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="stat-rank-item">
+              <span class="stat-rank-label">❤️ HP</span>
+              <div class="stat-rank-bar">
+                <div class="stat-rank-fill hp-fill-rank" style="width: ${hpPercent}%;">
+                  <span>${Math.round(hpPercent)}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function voltarHome() { window.location.href = 'index.html'; }
+    window.onload = function() { carregarRankings(); };
+  </script>
+</body>
+</html>
